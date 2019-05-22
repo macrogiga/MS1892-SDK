@@ -74,7 +74,7 @@
 #define CHEN4_ENABLE								((uint32_t)0x00000010)
 #define CHEN5_ENABLE								((uint32_t)0x00000020)
 #define CHEN6_ENABLE								((uint32_t)0x00000040)
-
+#define CHEN8_ENABLE								((uint32_t)0x00000100)
 #define CHALL_ENABLE                				((uint32_t)0x0000FFFF)
 
 #define CHEN_DISABLE								((uint32_t)0xFFFFFE00)
@@ -406,6 +406,8 @@ void ADC_RegularChannelConfig(ADC_TypeDef* ADCx, uint8_t ADC_Channel, uint8_t Ra
     /* set the CHEN6 bit for channel 6 enable*/
     case ADC_Channel_6: ADCx->ADCHS |= CHEN6_ENABLE;
     break;
+    case ADC_Channel_refvol: ADCx->ADCHS |= CHEN8_ENABLE; //Voltage Sensor
+      break;
     case ADC_Channel_All:ADCx->ADCHS |= CHALL_ENABLE;  //SENSOREN or VREFINT
     break;
     default:

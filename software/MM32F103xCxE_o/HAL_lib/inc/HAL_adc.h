@@ -208,6 +208,7 @@ typedef struct
 // #define ADC_Channel_13                              ((uint8_t)0x0D)
 // #define ADC_Channel_14                              ((uint8_t)0x0E)
 // #define ADC_Channel_15                              ((uint8_t)0x0F)
+#define ADC_Channel_refvol                          ((uint8_t)0x08)
 #define ADC_Channel_All								((uint8_t)0xFF)
 
 
