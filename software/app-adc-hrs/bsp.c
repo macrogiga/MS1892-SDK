@@ -92,13 +92,74 @@ void delay(u16 systicktime)
     }
 }
 
+//实时时钟配置
+//初始化RTC时钟,同时检测时钟是否工作正常
+//BKP->DR1用于保存是否第一次配置的设置
+//返回0:正常
+//其他:错误代码
+u8 RTC_Init(void)
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
+    //检查是不是第一次配置时钟
+    u8 temp=0;
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);	//使能PWR和BKP外设时钟   
+    PWR_BackupAccessCmd(ENABLE);	//使能后备寄存器访问 
+    
+    BKP_DeInit();	//复位备份区域 
+    RCC_LSICmd(ENABLE);//使能内部低速时钟
+    
+    while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)	//检查指定的RCC标志位设置与否,等待内部低速晶振就绪
+    {
+        temp++;
+        delay(1);
+    }
+    if(temp>=250)
+        return 1;//初始化时钟失败,晶振有问题
+    RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);		//设置RTC时钟(RTCCLK),选择LSI作为RTC时钟 
+    
+    RCC_RTCCLKCmd(ENABLE);	//使能RTC时钟
+    
+    NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQn;		//RTC全局中断
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;	//先占优先级1位,从优先级3位
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;	//先占优先级0位,从优先级4位
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;		//使能该通道中断
+    NVIC_Init(&NVIC_InitStructure);		//根据NVIC_InitStruct中指定的参数初始化外设NVIC寄存器
+    
+    
+    RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成
+    delay(1);
+    RTC_WaitForSynchro();	//等待RTC寄存器同步 
+    
+    RTC_ITConfig(RTC_IT_SEC, ENABLE);	//使能RTC秒钟中断
+    RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成
+    delay(1);
+
+    RTC_EnterConfigMode();// 允许配置
+    RTC_SetPrescaler(39999); //设置RTC预分频的值，40k即1秒钟
+    RTC_WaitForLastTask();	//等待最近一次对RTC寄存器的写操作完成
+
+    return 0; //ok
+}
+
 void BSP_Init(void)
 {
     SPIM_Init(SPI3, 24); //SPI_BaudRatePrescaler_16,9Mhz
     IRQ_RF();
     
     SysTick_Configuration();
-    
+    RTC_Init();
     /*复位时长约为6.4s*/
     Write_Iwdg_ON(IWDG_Prescaler_256, 4000); //1000=6.4s
+}
+
+
+//RTC时钟中断
+//每秒触发一次  
+void RTC_IRQHandler(void)
+{
+    if (RTC_GetITStatus(RTC_IT_SEC) != RESET)//秒钟中断
+    {
+        RTC_ClearITPendingBit(RTC_IT_SEC);
+        RTC_WaitForLastTask(); 
+    }
 }

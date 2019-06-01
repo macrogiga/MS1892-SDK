@@ -21,7 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
     DEALINGS IN THE SOFTWARE.
 */
-/*lib release: v5.1.7*/
+/*lib release: v5.1.8*/
 
 #ifndef _MG_API_H_
 #define _MG_API_H_
@@ -196,14 +196,6 @@ unsigned char* GetLTKInfo(unsigned char* newFlag);
 
 
 
-///////////////////////////OTA APIs/////////////////////////////////
-//return: 
-// OTA_OK             0
-// OTA_SN_ERROR       1
-// OTA_CHECKSUM_ERROR 2
-// OTA_FORMAT_ERROR   3
-// OTA_UNKNOWN_ERROR  255
-unsigned char OTA_Proc(unsigned char *data, unsigned short len);
 
 
 ///////////////////////////interrupt running mode APIs/////////////////////////////////

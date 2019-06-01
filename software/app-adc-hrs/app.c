@@ -336,6 +336,7 @@ void server_blob_rd_rsp(u8 attOpcode, u16 attHandle, u8 dataHdrP,u16 offset)
 {
 }
 
+#define AES_HW_SUPPORT
 //---- MindMotion HardWare AES implemenation -----
 //unsigned char aes_encrypt_HW(unsigned char *painText128bitBE,unsigned char *key128bitBE); //porting api, returns zero means not supported
 unsigned char aes_encrypt_HW(unsigned char *_data, unsigned char *_key)
@@ -347,7 +348,7 @@ unsigned char aes_encrypt_HW(unsigned char *_data, unsigned char *_key)
 
 #else  //HW AES supported
 
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_AES, ENABLE); //AES CLK enable
+    RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_AES, ENABLE); //AES CLK enable
     
     AES->CR = 0x00;	
     AES->CR|=0x03<<20;
@@ -401,7 +402,7 @@ unsigned char aes_encrypt_HW(unsigned char *_data, unsigned char *_key)
     _data[2] = tmp >>  8;
     _data[3] = tmp;    
 
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_AES, DISABLE); //AES CLK disable
+    RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_AES, DISABLE); //AES CLK disable
 
     return 1;// HW supported value
 #endif
