@@ -21,7 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
     DEALINGS IN THE SOFTWARE.
 */
-/*lib release: v5.1.8*/
+/*lib release: v5.2.1*/
 
 #ifndef _MG_API_H_
 #define _MG_API_H_
@@ -145,6 +145,12 @@ unsigned char ble_set_wakeupdly(unsigned short counter);
 //return: None
 void ble_set_adv_enableFlag(char sEnableFlag);
 
+//Function: ble_set_role
+//this function is to set ble role to peripheral(0) or central(1), by default ble role is peripheral(0)
+//Parameters: role_new - 0 peripheral, 1 central
+//            scan_window - scan window for central rol. range: 0x0004~0x4000 (2.5ms ~ 10.24s)
+//return: 0 - fail, 1 - success
+unsigned char ble_set_role(unsigned char role_new, unsigned short scan_window);
 
 //Function: ble_disconnect
 //this function is to disconnected the ble connection
@@ -234,19 +240,8 @@ void ble_nMsRoutine(void);
 unsigned char ble_run_interrupt_McuCanSleep(void);
 
 
-///////////////////////////test/debug APIs/////////////////////////////////
-//Parameters: freq - input, 0~80, center frequency(2400+freq)MHz, txpwr - input, 0x20~0x4A, txpower
-//return: None. in testing, add while(1); after calling this function
-void test_carrier(unsigned char freq, unsigned char txpwr);
-
-//Parameters: freq - input, 0~80, center frequency(2400+freq)MHz, txpwr - input, 0x20~0x4A, txpower
-//return: None. in testing, add while(1); after calling this function
-void test_SRRCCarrier(unsigned char  freq, unsigned char txpwr);
-
-//Parameters: freq - input, 0~80, center frequency(2400+freq)MHz, txpwr - input, 0x20~0x4A, txpower
-//return: None. in testing, add while(1); after calling this function
-void test_PRBS9(unsigned char freq, unsigned char txpwr);
-
+///////////////////////////debug APIs/////////////////////////////////
+//Parameters: isFixCh37Flag - input, 1-adv on ch37 only, 0-adv on ch37,38,39. default:0
 void SetFixAdvChannel(unsigned char isFixCh37Flag);
 
 

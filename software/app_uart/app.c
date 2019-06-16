@@ -52,8 +52,10 @@
 u16 cur_notifyhandle = 0x12;  //Note: make sure each notify handle by invoking function: set_notifyhandle(hd);
 
 // APP ---------------------------------------------------------------------------
+#define MAX_NAME_LEN  24
+char DeviceInfo[MAX_NAME_LEN+1] =  {11,'M','S','1','8','9','2','-','U','A','R','T'};  /*first byte is len, max len is 24*/
 
-char DeviceInfo[24+1]   =   "MS1892-UART";  /*max len is 24 bytes*/
+u8* getDeviceInfoData(u8* len);
 
 typedef struct ble_character16{
     u16 type16;          //type2
@@ -186,13 +188,18 @@ void ser_write_rsp(u8 pdu_type/*reserved*/, u8 attOpcode/*reserved*/,
 void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
 {
     u8 tab[3];
+    u8  d_len;
+    u8* ble_name = getDeviceInfoData(&d_len);
     
     switch(attHandle) //hard code
     {
+        case 0x04: //GAP name
+            att_server_rd( pdu_type, attOpcode, attHandle, ble_name, d_len);
+            break;
+                
         case 0x09: //MANU_INFO
             //att_server_rd( pdu_type, attOpcode, attHandle, (u8*)(MANU_INFO), sizeof(MANU_INFO)-1);
             att_server_rd( pdu_type, attOpcode, attHandle, get_ble_version(), strlen((const char*)get_ble_version())); //ble lib build version
-        
             break;
         
         case 0x0b: //FIRMWARE_INFO
@@ -204,10 +211,6 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
         
         case 0x0f://SOFTWARE_INFO
             att_server_rd( pdu_type, attOpcode, attHandle, (u8*)(SOFTWARE_INFO), sizeof(SOFTWARE_INFO)-1);
-            break;
-        
-        case 0x04://name
-            att_server_rd( pdu_type, attOpcode, attHandle, (u8*)(DeviceInfo), strlen(DeviceInfo));
             break;
         
         case 0x13://cfg
@@ -247,16 +250,15 @@ void gatt_user_send_notify_data_callback(void)
 
 u8* getDeviceInfoData(u8* len)
 {    
-    //*len = sizeof(DeviceInfo);
-    *len = strlen(DeviceInfo);
-    return (u8*)DeviceInfo;
+    *len = DeviceInfo[0];
+    return (u8*)&DeviceInfo[1];
 }
 
 void updateDeviceInfoData(u8* name, u8 len)
 {
-    memcpy(DeviceInfo,name, len);
-    DeviceInfo[len] = '\0';
-    
+    if(len > MAX_NAME_LEN) len = MAX_NAME_LEN;
+    DeviceInfo[0] = len;
+    memcpy(&DeviceInfo[1], name, len);
     ble_set_name(name,len);
 }
 
