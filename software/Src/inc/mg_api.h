@@ -21,7 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
     DEALINGS IN THE SOFTWARE.
 */
-/*lib release: v5.2.4*/
+/*lib release: v5.2.5*/
 
 #ifndef _MG_API_H_
 #define _MG_API_H_
